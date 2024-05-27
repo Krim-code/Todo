@@ -1,0 +1,16 @@
+pip install Pillow
+
+media -  создать папку 
+
+# setting.py
+MEDIA_ROOT = [BASE_DIR/"media"]
+MEDIA_URL = "/media/"
+
+
+#urls GLOBAL
+
+from django.conf.urls.static import static
+from django.conf import settings
+
+urlpatterns += static(settings.MEDIA_URL,
+                      document_root = settings.MEDIA_ROOT)
