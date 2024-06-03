@@ -8,6 +8,8 @@
     <title>Document</title>
 </head>
 <body>
+
+    
     <header class="header">
         <div class="container">
             <a href="{%url 'home'%}" class="logo">Todo</a>
@@ -19,6 +21,7 @@
 
                 {% if request.user.is_authenticated %}
 
+
                     <a href="{%url 'tasks'%}">
                         <i class="bi bi-list-task"></i>
                         My Tasks
@@ -27,7 +30,7 @@
                         <i class="bi bi-plus-circle"></i>
                         Create Task
                     </a>
-                    <a href="#">Hi {{ request.user| title }}</a>
+                    <a href="{% url 'profile' %}">Hi {{ request.user| title }}</a>
 
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}

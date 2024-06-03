@@ -14,18 +14,22 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+import os
+import environ
 
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR,".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-s3#+_pmgjlpw#2$u8_rqmzbtvfh7kbwsh*1y0+6h#=c_1m_*^6'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
 
 LOGIN_URL = 'login'
 # LOGOUT_REDIRECT_URL = '/login' 
@@ -41,17 +45,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'todo',
     'users',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+   
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
+
+INTERNAL_IPS = ["127.0.0.1"]
+
+
 
 ROOT_URLCONF = 'todo_list.urls'
 
@@ -80,7 +92,7 @@ WSGI_APPLICATION = 'todo_list.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / env('DJANGO_DB_NAME'),
     }
 }
 
@@ -102,7 +114,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+import os
 
+CACHES = {
+    'default':{
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'todo_cache'),
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -120,7 +139,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_DIRS = [BASE_DIR/'static']
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 MEDIA_ROOT = BASE_DIR/"media"
 MEDIA_URL = "/media/"
@@ -133,13 +155,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #smpt settings
 
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = "465"
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = "revi.krim@yandex.ru"
-EMAIL_HOST_PASSWORD = "daserkfshvtokhdk"
+EMAIL_HOST = env("DJANGO_EMAIL_HOST")
+EMAIL_PORT = env("DJANGO_EMAIL_PORT")
+EMAIL_USE_SSL = env.bool("DJANGO_EMAIL_USE_SSL")
+EMAIL_USE_TLS = env.bool("DJANGO_EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("DJANGO_EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("DJANGO_EMAIL_HOST_PASSWORD")
 
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
